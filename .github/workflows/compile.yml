@@ -23,7 +23,9 @@ jobs:
       - name: Prepare Kernel Config
         run: |
           cd ~/luckfox/sysdrv/source/kernel
-          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- luckfox_pico_defconfig
+          ANY_CONFIG=$(ls arch/arm/configs/luckfox_pico_*_defconfig | head -n 1 | xargs basename)
+          echo "Using kernel config: $ANY_CONFIG"
+          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- $ANY_CONFIG
           make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules_prepare
 
       - name: Compile Driver
