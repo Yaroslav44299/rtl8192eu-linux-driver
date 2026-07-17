@@ -1,0 +1,19 @@
+name: Build Driver for Luckfox
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Toolchain and Kernel
+        run: |
+          sudo apt update && sudo apt install -y gcc-arm-linux-gnueabihf make git
+          git clone --depth 1 https://github.com ~/luckfox
+      - name: Compile
+        run: |
+          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -C ~/luckfox/sysdrv/source/kernel M=$(pwd) modules
+      - name: Upload Result
+        uses: actions/upload-artifact@v4
+        with:
+          name: luckfox-driver
+          path: 8192eu.ko
