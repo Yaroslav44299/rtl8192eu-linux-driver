@@ -5,22 +5,15 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: Install Cross-Compiler
+      - name: Install Cross-Compiler and ARM Headers
         run: |
-          sudo apt update && sudo apt install -y gcc-arm-linux-gnueabihf make wget unzip
-      - name: Download Luckfox Kernel Zip
-        run: |
-          wget https://github.com -O kernel.zip
-          unzip kernel.zip
-          mv luckfox-pico-kernel-luckfox-pico ~/luckfox-kernel
-      - name: Prepare Kernel Config
-        run: |
-          cd ~/luckfox-kernel
-          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- luckfox_pico_defconfig
-          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules_prepare
+          sudo dpkg --add-architecture armhf
+          sudo apt update
+          sudo apt install -y gcc-arm-linux-gnueabihf make git linux-headers-generic:armhf
       - name: Compile Driver
         run: |
-          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -C ~/luckfox-kernel M=$(pwd) modules
+          KERNEL_DIR=$(ls -d /usr/src/linux-headers-*-generic | head -n 1)
+          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -C $KERNEL_DIR M=$(pwd) modules
       - name: Upload Result
         uses: actions/upload-artifact@v4
         with:
