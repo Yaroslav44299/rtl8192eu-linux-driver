@@ -8,10 +8,13 @@ jobs:
       - name: Install Cross-Compiler
         run: |
           sudo apt update
-          sudo apt install -y gcc-arm-linux-gnueabihf make git
-      - name: Compile Module
+          sudo apt install -y gcc-arm-linux-gnueabihf make git wget unzip
+      - name: Download Luckfox Kernel Headers
         run: |
-          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules
+          git clone --depth 1 https://github.com ~/luckfox
+      - name: Compile Driver
+        run: |
+          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -C ~/luckfox/sysdrv/source/kernel M=$(pwd) modules
       - name: Upload Result
         uses: actions/upload-artifact@v4
         with:
