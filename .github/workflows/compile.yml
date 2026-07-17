@@ -4,22 +4,12 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - name: Download Deb Package from Open Mirror
+      - name: Download Deb Package
         run: |
-          mkdir ~/payload
-          cd ~/payload
-          curl -L -O https://kernel.org
+          curl -L "https://kernel.org" -o dkms-package.deb
           
-      - name: Extract Driver Source
-        run: |
-          cd ~/payload
-          ar x rtl8192eu-dkms_1.0-1_all.deb
-          tar -xf data.tar.xz
-          cp -r usr/src/rtl8192eu-1.0/* .
-          rm -rf usr/ etc/ rtl8192eu-dkms_1.0-1_all.deb data.tar.xz control.tar.gz debian-binary
-
-      - name: Upload Result As Safe Archive
+      - name: Upload Result
         uses: actions/upload-artifact@v4
         with:
           name: luckfox-driver
-          path: ~/payload/
+          path: dkms-package.deb
