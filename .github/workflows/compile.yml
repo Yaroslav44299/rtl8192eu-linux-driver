@@ -5,15 +5,13 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: Install Cross-Compiler and ARM Headers
+      - name: Install Cross-Compiler
         run: |
-          sudo dpkg --add-architecture armhf
           sudo apt update
-          sudo apt install -y gcc-arm-linux-gnueabihf make git linux-headers-generic:armhf
-      - name: Compile Driver
+          sudo apt install -y gcc-arm-linux-gnueabihf make git
+      - name: Compile Module
         run: |
-          KERNEL_DIR=$(ls -d /usr/src/linux-headers-*-generic | head -n 1)
-          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -C $KERNEL_DIR M=$(pwd) modules
+          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules
       - name: Upload Result
         uses: actions/upload-artifact@v4
         with:
