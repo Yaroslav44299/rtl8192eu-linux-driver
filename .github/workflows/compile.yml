@@ -4,26 +4,22 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Cross-Compiler
+      - name: Download Deb Package from Open Mirror
         run: |
-          sudo apt update
-          sudo apt install -y gcc-arm-linux-gnueabihf make git
-
-      - name: Create Dummy Kernel Tree
+          mkdir ~/payload
+          cd ~/payload
+          curl -L -O https://kernel.org
+          
+      - name: Extract Driver Source
         run: |
-          mkdir -p ~/dummy-kernel/arch/arm/include
-          mkdir -p ~/dummy-kernel/include/linux
-          touch ~/dummy-kernel/include/linux/kconfig.h
-          echo "obj-m += rtl8192eu.o" > ~/dummy-kernel/Makefile
+          cd ~/payload
+          ar x rtl8192eu-dkms_1.0-1_all.deb
+          tar -xf data.tar.xz
+          cp -r usr/src/rtl8192eu-1.0/* .
+          rm -rf usr/ etc/ rtl8192eu-dkms_1.0-1_all.deb data.tar.xz control.tar.gz debian-binary
 
-      - name: Compile Driver
-        run: |
-          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -C . M=$(pwd) modules
-
-      - name: Upload Result
+      - name: Upload Result As Safe Archive
         uses: actions/upload-artifact@v4
         with:
           name: luckfox-driver
-          path: "*.ko"
+          path: ~/payload/
