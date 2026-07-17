@@ -16,4 +16,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: luckfox-driver
-          path: 8192eu.ko
+          path: "*.ko"
