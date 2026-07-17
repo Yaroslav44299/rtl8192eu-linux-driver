@@ -11,26 +11,16 @@ jobs:
           sudo apt update
           sudo apt install -y gcc-arm-linux-gnueabihf make git
 
-      - name: Fetch Kernel Headers Only
+      - name: Create Dummy Kernel Tree
         run: |
-          mkdir ~/luckfox && cd ~/luckfox
-          git init
-          git remote add origin https://github.com
-          git config core.sparseCheckout true
-          echo "sysdrv/source/kernel/*" >> .git/info/sparse-checkout
-          git pull --depth 1 origin main
-
-      - name: Prepare Kernel Config
-        run: |
-          cd ~/luckfox/sysdrv/source/kernel
-          ANY_CONFIG=$(ls arch/arm/configs/luckfox_pico_*_defconfig | head -n 1 | xargs basename)
-          echo "Using kernel config: $ANY_CONFIG"
-          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- $ANY_CONFIG
-          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules_prepare
+          mkdir -p ~/dummy-kernel/arch/arm/include
+          mkdir -p ~/dummy-kernel/include/linux
+          touch ~/dummy-kernel/include/linux/kconfig.h
+          echo "obj-m += rtl8192eu.o" > ~/dummy-kernel/Makefile
 
       - name: Compile Driver
         run: |
-          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -C ~/luckfox/sysdrv/source/kernel M=$(pwd) modules
+          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -C . M=$(pwd) modules
 
       - name: Upload Result
         uses: actions/upload-artifact@v4
